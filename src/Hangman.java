@@ -1,19 +1,18 @@
-import java.util.Scanner;
+import java.util.*;
 
 public class Hangman {
     private String word;
     private int attempts = 7;
-    private boolean[] letterGuessed;
-    private String[] guessedLetters;
     private int currentAttempt;
+    private Set<Character> guessedLettersSet;
+    private List<Character> guessedMask;
 
     public void start(String word) {
         initGame(word);
 
         while (attempts > 0) {
             String input = getAndValidateUserInput();
-            boolean continueGame = processInput(input);
-            if (!continueGame) {
+            if (!processInput(input.charAt(0))) {
                 break;
             }
         }
@@ -23,8 +22,8 @@ public class Hangman {
         this.word = word;
         this.currentAttempt = 0;
         this.attempts = 7;
-        this.letterGuessed = new boolean[26];
-        this.guessedLetters = new String[word.length()];
+        this.guessedLettersSet = new HashSet<>();
+        this.guessedMask = new ArrayList<>(Collections.nCopies(word.length(), null));
     }
 
     private String getAndValidateUserInput() {
@@ -35,29 +34,27 @@ public class Hangman {
             System.out.print("Введите букву: ");
 
             answer = scanner.nextLine().toLowerCase();
+
             if (answer.length() != 1) {
                 System.out.println("Пожалуйста, введите одну букву!");
-            } else if (answer.matches("\\d+")) {
-                System.out.println("Это число!");
-            } else {
-                break;
+                continue;
             }
+
+            if (answer.matches("\\d+")) {
+                System.out.println("Это число!");
+                continue;
+            }
+
+            if (guessedLettersSet.contains(answer.charAt(0))) {
+                System.out.println("Эта буква уже была!");
+                continue;
+            }
+            return answer;
         }
-        return answer;
+
     }
 
-    private boolean processInput(String input) {
-        char letter = input.charAt(0);
-        int index = letter - 'a';
-
-        if (isAlreadyGuessed(index)) {
-            System.out.println("Эта буква уже была");
-            printStatus(getWordMask());
-            return true;
-        }
-
-        markAsGuessed(index);
-
+    private boolean processInput(char letter) {
         if (isLetterInWord(letter)) {
             handleCorrectGuess(letter);
             return !isWin();
@@ -67,37 +64,15 @@ public class Hangman {
         }
     }
 
-    private String[] getWordMask() {
-        String[] mask = new String[word.length()];
-
-        for (int i = 0; i < word.length(); i++) {
-            if (guessedLetters[i] != null) {
-                mask[i] = guessedLetters[i];
-            } else {
-                mask[i] = "(_)";
-            }
-        }
-        return mask;
-    }
-
     private boolean isLetterInWord(char letter) {
         return word.indexOf(letter) != -1;
     }
 
-    private boolean isAlreadyGuessed(int index) {
-        return index >= 0 && index < 26 && letterGuessed[index];
-    }
-
-    private void markAsGuessed(int index) {
-        if (index >= 0 && index < 26) {
-            letterGuessed[index] = true;
-        }
-    }
-
     private void handleCorrectGuess(char letter) {
+        guessedLettersSet.add(letter);
         updateMask(letter);
         System.out.println("\n Отлично! Буква '" + letter + "' есть в слове!");
-        printStatus(getWordMask());
+        printStatus();
 
         if (isWin()) {
             System.out.println("Поздравляю! Вы угадали слово: " + word);
@@ -105,52 +80,47 @@ public class Hangman {
     }
 
     private void handleWrongGuess(char letter) {
+        guessedLettersSet.add(letter);
         System.out.println(HangmanData.HANGMANPICS[currentAttempt]);
-
         attempts--;
         currentAttempt++;
 
         System.out.println("\n Буквы '" + letter + "' нет в слове!");
-
-        printStatus(getWordMask());
+        printStatus();
 
         if (attempts == 0) {
             System.out.println("Вы проиграли! Загаданное слово: " + word);
         }
     }
 
-    private boolean isWin() {
-        return checkWinCondition(getWordMask());
-    }
-
     private void updateMask(char letter) {
         for (int i = 0; i < word.length(); i++) {
             if (word.charAt(i) == letter) {
-                guessedLetters[i] = String.valueOf(letter);
+                guessedMask.set(i, letter);
             }
         }
     }
 
-    private void printStatus(String[] mask) {
-        System.out.println("\n" + String.join("", mask));
-
-        StringBuilder guessed = new StringBuilder("Используемые буквы: ");
-        for (int i = 0; i < 26; i++) {
-            if (letterGuessed[i]) {
-                guessed.append((char)('a' + i)).append(" ");
-            }
-        }
-
-        System.out.println(guessed);
-        System.out.println("Осталось попыток: " + attempts);
-    }
-
-    private boolean checkWinCondition(String[] mask) {
-        for (String s : mask) {
-            if (s.equals("(_)")) {
-                return false;
-            }
+    private boolean isWin() {
+        for (Character c : guessedMask) {
+            if (c == null) return false;
         }
         return true;
+    }
+
+    private void printStatus() {
+        StringBuilder maskDisplay = new StringBuilder();
+        for (Character c : guessedMask) {
+            maskDisplay.append(c == null ? "(_)" : c);
+        }
+        System.out.println("\n" + maskDisplay);
+
+        StringBuilder guessedDisplay = new StringBuilder("Используемые буквы: ");
+        for (char c : guessedLettersSet) {
+            guessedDisplay.append(c).append(" ");
+        }
+
+        System.out.println(guessedDisplay);
+        System.out.println("Осталось попыток: " + attempts);
     }
 }
