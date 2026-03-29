@@ -59,44 +59,65 @@ public class Hangman {
 
     public boolean processInput(String input) {
         char letter = input.charAt(0);
-        int letterIndex = letter - 'a';
+        int index = letter - 'a';
 
-        if (letterIndex >= 0 && letterIndex < 26 && letterGuessed[letterIndex]) {
+        if (isAlreadyGuessed(index)) {
             System.out.println("Эта буква уже была");
             printStatus(getWordMask());
             return true;
         }
 
-        if (letterIndex >= 0 && letterIndex < 26) {
-            letterGuessed[letterIndex] = true;
-        }
+        markAsGuessed(index);
 
-        if (word.indexOf(letter) != -1) {
-            updateMask(letter);
-            System.out.println("\n Отлично! Буква '" + letter + "' есть в слове!");
-            printStatus(getWordMask());
-
-            if (checkWinCondition(getWordMask())) {
-                System.out.println("Поздравляю! Вы угадали слово: " + word);
-                return false;
-            }
+        if (isLetterInWord(letter)) {
+            handleCorrectGuess(letter);
+            return !isWin();
         } else {
-            attempts--;
-            currentAttempt++;
-            System.out.println("\n Буквы '" + letter + "' нет в слове!");
-
-            System.out.println(HangmanData.HANGMANPICS[currentAttempt]);
-
-            if (currentAttempt <= HangmanData.HANGMANPICS.length) {
-                printStatus(getWordMask());
-            }
-
-            if (attempts == 0) {
-                System.out.println("Вы проиграли! Загаданное слово: " + word);
-                return false;
-            }
+            handleWrongGuess(letter);
+            return attempts > 0;
         }
-        return true;
+    }
+
+    private boolean isLetterInWord(char letter) {
+        return word.indexOf(letter) != -1;
+    }
+
+    private boolean isAlreadyGuessed(int index) {
+        return index >= 0 && index < 26 && letterGuessed[index];
+    }
+
+    private void markAsGuessed(int index) {
+        if (index >= 0 && index < 26) {
+            letterGuessed[index] = true;
+        }
+    }
+
+    private void handleCorrectGuess(char letter) {
+        updateMask(letter);
+        System.out.println("\n Отлично! Буква '" + letter + "' есть в слове!");
+        printStatus(getWordMask());
+
+        if (isWin()) {
+            System.out.println("Поздравляю! Вы угадали слово: " + word);
+        }
+    }
+
+    private void handleWrongGuess(char letter) {
+        attempts--;
+        currentAttempt++;
+
+        System.out.println("\n Буквы '" + letter + "' нет в слове!");
+        System.out.println(HangmanData.HANGMANPICS[currentAttempt]);
+
+        printStatus(getWordMask());
+
+        if (attempts == 0) {
+            System.out.println("Вы проиграли! Загаданное слово: " + word);
+        }
+    }
+
+    private boolean isWin() {
+        return checkWinCondition(getWordMask());
     }
 
     public void updateMask(char letter) {
