@@ -9,6 +9,7 @@ public class Hangman {
 
     public void start(String word) {
         initGame(word);
+        printWordMask();
 
         while (attempts > 0) {
             String input = getAndValidateUserInput();
@@ -111,18 +112,28 @@ public class Hangman {
     }
 
     private void printStatus() {
+        printWordMask();
+        printGuessedLetters();
+        printAttempts();
+    }
+
+    private void printWordMask() {
         StringBuilder maskDisplay = new StringBuilder();
         for (Character c : guessedMask) {
             maskDisplay.append(c == null ? "(_)" : c);
         }
         System.out.println("\n" + maskDisplay);
+    }
 
+    private void printGuessedLetters() {
         StringBuilder guessedDisplay = new StringBuilder("Используемые буквы: ");
         for (char c : guessedLettersSet) {
             guessedDisplay.append(c).append(" ");
         }
-
         System.out.println(guessedDisplay);
+    }
+
+    private void printAttempts() {
         System.out.println("Осталось попыток: " + attempts);
     }
 }
