@@ -7,11 +7,6 @@ public class Hangman {
     private String[] guessedLetters;
     private int currentAttempt;
 
-    public Hangman() {
-        letterGuessed = new boolean[26];
-        currentAttempt = 0;
-    }
-
     public void start(String word) {
         initGame(word);
 
@@ -42,6 +37,8 @@ public class Hangman {
             answer = scanner.nextLine().toLowerCase();
             if (answer.length() != 1) {
                 System.out.println("Пожалуйста, введите одну букву!");
+            } else if (answer.matches("\\d+")) {
+                System.out.println("Это число!");
             } else {
                 break;
             }
