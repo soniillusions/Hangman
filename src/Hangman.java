@@ -13,11 +13,7 @@ public class Hangman {
     }
 
     public void start(String word) {
-        this.word = word;
-        this.currentAttempt = 0;
-        this.attempts = 7;
-        this.letterGuessed = new boolean[26];
-        this.guessedLetters = new String[word.length()];
+        initGame(word);
 
         while (attempts > 0) {
             String input = getAndValidateUserInput();
@@ -26,6 +22,14 @@ public class Hangman {
                 break;
             }
         }
+    }
+
+    private void initGame(String word) {
+        this.word = word;
+        this.currentAttempt = 0;
+        this.attempts = 7;
+        this.letterGuessed = new boolean[26];
+        this.guessedLetters = new String[word.length()];
     }
 
     private String getAndValidateUserInput() {
@@ -43,19 +47,6 @@ public class Hangman {
             }
         }
         return answer;
-    }
-
-    private String[] getWordMask() {
-        String[] mask = new String[word.length()];
-
-        for (int i = 0; i < word.length(); i++) {
-            if (guessedLetters[i] != null) {
-                mask[i] = guessedLetters[i];
-            } else {
-                mask[i] = "(_)";
-            }
-        }
-        return mask;
     }
 
     private boolean processInput(String input) {
@@ -77,6 +68,19 @@ public class Hangman {
             handleWrongGuess(letter);
             return attempts > 0;
         }
+    }
+
+    private String[] getWordMask() {
+        String[] mask = new String[word.length()];
+
+        for (int i = 0; i < word.length(); i++) {
+            if (guessedLetters[i] != null) {
+                mask[i] = guessedLetters[i];
+            } else {
+                mask[i] = "(_)";
+            }
+        }
+        return mask;
     }
 
     private boolean isLetterInWord(char letter) {
