@@ -3,9 +3,9 @@ import java.util.Scanner;
 public class Hangman {
     private String word;
     private int attempts = 7;
-    private boolean[] letterGuessed = new boolean[26];
+    private boolean[] letterGuessed;
     private String[] guessedLetters;
-    private int currentAttempt = -1;
+    private int currentAttempt;
 
     public Hangman() {
         letterGuessed = new boolean[26];
@@ -14,7 +14,7 @@ public class Hangman {
 
     public void start(String word) {
         this.word = word;
-        this.currentAttempt = -1;
+        this.currentAttempt = 0;
         this.attempts = 7;
         this.letterGuessed = new boolean[26];
         this.guessedLetters = new String[word.length()];
@@ -28,12 +28,13 @@ public class Hangman {
         }
     }
 
-    public String getAndValidateUserInput() {
+    private String getAndValidateUserInput() {
         Scanner scanner = new Scanner(System.in);
         String answer;
         while (true) {
             System.out.println();
             System.out.print("Введите букву: ");
+
             answer = scanner.nextLine().toLowerCase();
             if (answer.length() != 1) {
                 System.out.println("Пожалуйста, введите одну букву!");
@@ -44,7 +45,7 @@ public class Hangman {
         return answer;
     }
 
-    public String[] getWordMask() {
+    private String[] getWordMask() {
         String[] mask = new String[word.length()];
 
         for (int i = 0; i < word.length(); i++) {
@@ -57,7 +58,7 @@ public class Hangman {
         return mask;
     }
 
-    public boolean processInput(String input) {
+    private boolean processInput(String input) {
         char letter = input.charAt(0);
         int index = letter - 'a';
 
@@ -103,11 +104,12 @@ public class Hangman {
     }
 
     private void handleWrongGuess(char letter) {
+        System.out.println(HangmanData.HANGMANPICS[currentAttempt]);
+
         attempts--;
         currentAttempt++;
 
         System.out.println("\n Буквы '" + letter + "' нет в слове!");
-        System.out.println(HangmanData.HANGMANPICS[currentAttempt]);
 
         printStatus(getWordMask());
 
@@ -120,7 +122,7 @@ public class Hangman {
         return checkWinCondition(getWordMask());
     }
 
-    public void updateMask(char letter) {
+    private void updateMask(char letter) {
         for (int i = 0; i < word.length(); i++) {
             if (word.charAt(i) == letter) {
                 guessedLetters[i] = String.valueOf(letter);
@@ -128,7 +130,7 @@ public class Hangman {
         }
     }
 
-    public void printStatus(String[] mask) {
+    private void printStatus(String[] mask) {
         System.out.println("\n" + String.join("", mask));
 
         StringBuilder guessed = new StringBuilder("Используемые буквы: ");
@@ -138,12 +140,11 @@ public class Hangman {
             }
         }
 
-        System.out.println(guessed.toString());
-
+        System.out.println(guessed);
         System.out.println("Осталось попыток: " + attempts);
     }
 
-    public boolean checkWinCondition(String[] mask) {
+    private boolean checkWinCondition(String[] mask) {
         for (String s : mask) {
             if (s.equals("(_)")) {
                 return false;
