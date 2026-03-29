@@ -12,7 +12,9 @@ public class Hangman {
 
         while (attempts > 0) {
             String input = getAndValidateUserInput();
-            if (!processInput(input.charAt(0))) {
+            boolean continueGame = processInput(input.charAt(0));
+
+            if (!continueGame) {
                 break;
             }
         }
