@@ -2,7 +2,7 @@ import java.util.*;
 
 public class Hangman {
     private String word;
-    private int attempts = 7;
+    private int attempts;
     private int currentAttempt;
     private Set<Character> guessedLettersSet;
     private List<Character> guessedMask;
@@ -40,11 +40,6 @@ public class Hangman {
 
             if (answer.length() != 1) {
                 System.out.println("Пожалуйста, введите одну букву!");
-                continue;
-            }
-
-            if (answer.matches("\\d+")) {
-                System.out.println("Это число!");
                 continue;
             }
 
